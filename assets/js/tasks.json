@@ -1,0 +1,11 @@
+
+[
+    {
+        "text": "first test task from ajax",
+        "priority": "high"
+    },
+    {
+        "text": "second test task",
+        "priority": "high"
+    }
+]

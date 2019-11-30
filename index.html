@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="assets/styles/style.css">
+</head>
+
+<body>
+    <main>
+        <section>
+            <div class="todolist">
+                <div class="task-set">
+                    <h2>
+                        Set task
+                    </h2>
+                    <div class="task-set_flex">
+                    <input type="text" class="task-set_input" id="taskSetInput">
+                    <button class="button task-button" id="taskSetButton">add new task</button>
+                    </div>
+                </div>
+                <div class="task-in-progress">
+                    <h2>
+                        Task in progress
+                    </h2>
+                         <ul id="taskInProgress">
+                         </ul>
+                </div>
+                <div class="task-done">
+                    <h2>
+                        Completed tasks
+                    </h2>
+                    <ul id="completedTask">
+                    </ul>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/functions.js"></script>
+    <script src="assets/js/listeners.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>
