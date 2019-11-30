@@ -1,70 +1,66 @@
 function buildElement(
-    elementName,
-    attributes,
-    text,
-    handlers,
-    parent,
-    assign = false
-  ) {
-    const element = document.createElement(elementName);
-  
-    for (let key in attributes) {
-      if (key === "classes") {
-        for (let i = 0; i < attributes[key].length; i++) {
-          element.classList.add(attributes[key][i]);
-        }
-      } else {
-        element.setAttribute(key, attributes[key]);
+  elementName,
+  attributes,
+  text,
+  handlers,
+  parent,
+  assign = false
+) {
+  const element = document.createElement(elementName);
+
+  for (let key in attributes) {
+    if (key === "classes") {
+      for (let i = 0; i < attributes[key].length; i++) {
+        element.classList.add(attributes[key][i]);
       }
-  
-    }
-  
-    element.innerText = text;
-  
-    for (let key in handlers) {
-      element.addEventListener(key, handlers[key]);
-    }
-  
-    parent.appendChild(element);
-  
-    if(assign) {
-      return element;
+    } else {
+      element.setAttribute(key, attributes[key]);
     }
   }
 
-  function save() {
+  element.innerText = text;
 
+  for (let key in handlers) {
+    element.addEventListener(key, handlers[key]);
+  }
+
+  parent.appendChild(element);
+
+  if (assign) {
+    return element;
+  }
+}
+
+  function save() {
     let unfinishedTaskArr = [];
     let finishedTaskArr = [];
 
-    for (let i = 0; i < taskInProgressUl.children.length; i++){
-    let currentUnfinTask = {}; 
-    
-    currentUnfinTask.text = taskInProgressUl.children[i].getElementsByTagName('label')[0].innerText;
-    currentUnfinTask.priority =  taskInProgressUl.children[i].getElementsByTagName('select')[0].value;
+    Array.from(taskInProgressUl.children).forEach(elem => {
+      let currentUnfinTask = {};
 
-    unfinishedTaskArr.push(currentUnfinTask);
+      currentUnfinTask.text = elem.getElementsByTagName("label")[0].innerText;
+      currentUnfinTask.priority = elem.getElementsByTagName("select")[0].value;
 
-    }
+      unfinishedTaskArr.push(currentUnfinTask);
+    });
 
-    for (let i = 0; i < taskCompletedUl.children.length; i++){
-        let currentFinTask = {}; 
+    Array.from(taskCompletedUl.children).forEach(elem => {
+      let currentFinTask = {};
 
-        currentFinTask.text = taskCompletedUl.children[i].getElementsByTagName('label')[0].innerText;
-        currentFinTask.priority =  taskCompletedUl.children[i].getElementsByTagName('select')[0].value;
+      currentFinTask.text = elem.getElementsByTagName("label")[0].innerText;
+      currentFinTask.priority = elem.getElementsByTagName("select")[0].value;
 
-        finishedTaskArr.push(currentFinTask);
+      finishedTaskArr.push(currentFinTask);
+    });
 
-        }
-
-    localStorage.setItem('todo',JSON.stringify
-    (
-        {
-            unfinishTask: unfinishedTaskArr,
-            finishedTask: finishedTaskArr,
-        }
-    ));
-}
+    localStorage.setItem(
+      "todo",
+      JSON.stringify({
+        unfinishTask: unfinishedTaskArr,
+        finishedTask: finishedTaskArr
+      })
+    );
+  }
 
 function createListElement(taskTextInner,priority = 'medium', completed) {
 
@@ -90,60 +86,57 @@ function createListElement(taskTextInner,priority = 'medium', completed) {
     return taskListItem;
 }
 
-
-
 function load() {
-    let test = JSON.parse(localStorage.getItem('todo'));
+  let downloadFromLocal = JSON.parse(localStorage.getItem("todo"));
 
-let taskInProgressUl = document.getElementById("taskInProgress");
-let taskCompletedUl = document.getElementById("completedTask");
+  let taskInProgressUl = document.getElementById("taskInProgress");
+  let taskCompletedUl = document.getElementById("completedTask");
 
-for(let i = 0; i < test.unfinishTask.length; i++){
-    let textInList = test.unfinishTask[i].text;
-    let priorityInList = test.unfinishTask[i].priority;
-    let taskListItem = createListElement(textInList,priorityInList,false);
-    addListenersOnButtons(taskListItem,finishTaskButton);
+  downloadFromLocal.unfinishTask.forEach(task => {
+    let textInList = task.text;
+    let priorityInList = task.priority;
+    let taskListItem = createListElement(textInList, priorityInList, false);
+    addListenersOnButtons(taskListItem, finishTaskButton);
     taskInProgressUl.appendChild(taskListItem);
-}
+  });
 
-for(let i = 0; i < test.finishedTask.length; i++){
-    let textInList = test.finishedTask[i].text;
-    let priorityInList = test.finishedTask[i].priority;
-    let taskListItem = createListElement(textInList,priorityInList,true);
-    addListenersOnButtons(taskListItem,unfinishTaskButton);
+  downloadFromLocal.finishedTask.forEach(task => {
+    let textInList = task.text;
+    let priorityInList = task.priority;
+    let taskListItem = createListElement(textInList, priorityInList, true);
+    addListenersOnButtons(taskListItem, unfinishTaskButton);
     taskCompletedUl.appendChild(taskListItem);
-} 
+  });
 }
 
 function getDefaultTasksFromAjax() {
+  if (!localStorage.todo) {
+    let myRequest = new XMLHttpRequest();
 
-    if(!localStorage.todo) {
-  let myRequest = new XMLHttpRequest();
+    myRequest.open("GET", "assets/js/tasks.json", true);
+    myRequest.onreadystatechange = function() {
+      if (myRequest.readyState === 4) {
+        if (myRequest.status !== 200) {
+          console.log(myRequest.status + ": " + myRequest.statusText);
+        } else {
+          let defaultTasks = JSON.parse(myRequest.responseText);
 
-  myRequest.open("GET", "assets/js/tasks.json", true);
-  myRequest.onreadystatechange = function() {
-  
-    if (myRequest.readyState === 4) {
-      if (myRequest.status !== 200) {
-        
-        console.log(myRequest.status + ": " + myRequest.statusText); 
-      } else {
-         let defaultTasks = JSON.parse(myRequest.responseText);
+          defaultTasks.forEach(task => {
+            let textInList = task.text;
+            let priorityInList = task.priority;
+            let taskListItem = createListElement(
+              textInList,
+              priorityInList,
+              false
+            );
+            taskInProgressUl.appendChild(taskListItem);
+            addListenersOnButtons(taskListItem, finishTaskButton);
+          });
 
-         for(let i = 0; i < defaultTasks.length; i++){
-            let textInList = defaultTasks[i].text;
-            let priorityInList = defaultTasks[i].priority;
-            let taskListItem = createListElement(textInList,priorityInList,false);
-            taskInProgressUl.appendChild(taskListItem); 
-            addListenersOnButtons(taskListItem,unfinishTaskButton);
-}
-
-save();
-
+          save();
+        }
       }
-    }
-
-  }; 
-  myRequest.send();
-} 
+    };
+    myRequest.send();
+  }
 }
